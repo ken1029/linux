@@ -341,7 +341,6 @@ static int bcm54612e_config_aneg(struct phy_device *phydev)
 {
     int ret;
 
-    printk("#####Jason debug: start\n");
     /* First, auto-negotiate. */
     ret = genphy_config_aneg(phydev);
 
