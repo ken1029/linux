@@ -69,7 +69,6 @@ static void __init do_barreleye_setup(void)
 	 *    status
 	 */
 	writel(0x01C00000, AST_IO(AST_BASE_SCU | 0x88));
-	writel(0x003FA00C, AST_IO(AST_BASE_SCU | 0x90));
 	/* To enable GPIOE0 pass through function debounce mode */
 	writel(0x010FFFFF, AST_IO(AST_BASE_SCU | 0xA8));
 
