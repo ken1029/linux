@@ -18,6 +18,7 @@
 
 * History      :
 *    1. 2012/08/06 ryan chen create this file
+*    2. 2016/11/24 doyle huang disable pwm scu set
 *
 ********************************************************************************/
 
@@ -90,7 +91,7 @@ void __init ast_add_device_pwm_fan(void)
 }
 
 
-
+#if 0
 static u32 ast_scu_base = IO_ADDRESS(AST_SCU_BASE);
 
 static inline void
@@ -98,13 +99,15 @@ ast_scu_write(u32 val, u32 reg)
 {
 	writel(val, ast_scu_base + reg);
 }
-
+#endif
 
 extern void
 ast_scu_init_pwm_tacho(void)
 {
+#if 0
 	ast_scu_write(ast_scu_read(AST_SCU_RESET) | SCU_RESET_PWM, AST_SCU_RESET);
 	ast_scu_write(ast_scu_read(AST_SCU_RESET) & ~SCU_RESET_PWM, AST_SCU_RESET);
+#endif
 }
 
 EXPORT_SYMBOL(ast_scu_init_pwm_tacho);
