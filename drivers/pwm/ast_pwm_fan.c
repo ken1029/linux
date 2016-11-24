@@ -11,6 +11,7 @@
  *
  *  History:
  *    2012.08.06: Initial version [Ryan Chen]
+ *    2016.11.24: Disable PWM register init [Doyle Huang]
  */
 /* CLK sysfs
 * 0 : enable
@@ -127,6 +128,9 @@ ast_pwm_tacho_read(struct ast_pwm_tacho_data *ast_pwm_tacho, u32 reg)
 static void ast_pwm_taco_init(void)
 {
 
+//Disable PWM register init.
+//On current, PWM register init is setted by u-boot
+#if 0
 	uint32_t val;
 
 	//Enable PWM TACH CLK **************************************************
@@ -177,6 +181,7 @@ static void ast_pwm_taco_init(void)
 	val = AST_PTCR_CTRL_PWME_EN | AST_PTCR_CTRL_PWMF_EN
 	  | AST_PTCR_CTRL_PWMG_EN | AST_PTCR_CTRL_PWMH_EN;
 	ast_pwm_tacho_write(ast_pwm_tacho, val, AST_PTCR_CTRL_EXT);
+#endif
 }
 
 /*index 0 : clk_en , 1: clk_source*/
@@ -2226,5 +2231,6 @@ module_init(ast_pwm_tacho_init);
 module_exit(ast_pwm_tacho_exit);
 
 MODULE_AUTHOR("Ryan Chen <ryan_chen@aspeedtech.com>");
+MODULE_AUTHOR("Doyle Huang <doyle.sy.huang@mail.foxconn.com>");
 MODULE_DESCRIPTION("PWM TACHO driver");
 MODULE_LICENSE("GPL");
