@@ -15,6 +15,50 @@
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
+#include "ast2400.h"
+
+// XXX TEMP HACKERY
+//
+// To be replaced by proper clock, pinmux and syscon drivers operating
+// from DT parameters
+
+
+typedef void (init_fnc_t) (void);
+extern void __init ast_add_device_pwm_fan(void);
+
+init_fnc_t __initdata *init_all_device[] = {
+	ast_add_device_pwm_fan,
+	NULL,
+};
+
+static void __init ast_add_all_devices(void)
+{
+	init_fnc_t **init_fnc_ptr;
+
+	for (init_fnc_ptr = init_all_device; *init_fnc_ptr; ++init_fnc_ptr) {
+		(*init_fnc_ptr)();
+	}
+
+	return;
+}
+
+static void __init aspeed_dt_init(void)
+{
+	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+}
+
+static const struct of_device_id aspeed_clk_match[] __initconst = {
+	{
+		.compatible = "fixed-clock",
+		.data = of_fixed_clk_setup,
+	},
+	{}
+};
+
+void __init aspeed_clk_init(void __iomem *base)
+{
+	of_clk_init(aspeed_clk_match);
+}
 
 #define AST_IO_VA	0xf0000000
 #define AST_IO_PA	0x1e600000
