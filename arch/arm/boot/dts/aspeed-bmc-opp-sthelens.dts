@@ -63,22 +63,6 @@
 
 				};
 				i2c3: i2c-bus@100 {
-        				GPIO-MUX1@74 {
-                								compatible = "nxp,pca9539";
-                								reg = <0x74>;
-        				};
-                                        GPIO-MUX2@75 {
-                                                                                compatible = "nxp,pca9539";
-                                                                                reg = <0x75>;
-                                        };
-                                        GPIO-MUX3@76 {
-                                                                                compatible = "nxp,pca9539";
-                                                                                reg = <0x76>;
-                                        };
-                                        GPIO-MUX4@77 {
-                                                                                compatible = "nxp,pca9539";
-                                                                                reg = <0x77>;
-                                        };
 					};
 			};
 		};
