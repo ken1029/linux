@@ -174,6 +174,15 @@ static void __init do_zaius_setup(void)
 	reg = readl(AST_IO(AST_BASE_GPIO | 0x78));
 	board_rev = (reg >> 3) & 0x1F;
 
+	/* Set GPIOL5 for BMC Ready*/
+	reg = readl(AST_IO(AST_BASE_GPIO | 0x70));
+	reg &= ~(BIT(29));
+	writel(reg  , AST_IO(AST_BASE_GPIO | 0x70));
+	reg = readl(AST_IO(AST_BASE_GPIO | 0x74));
+	writel(reg | BIT(29) , AST_IO(AST_BASE_GPIO | 0x74));
+
+
+
 	/* EVT1 hacks */
 	if (board_rev == 0) {
 		/* Disable GPIO I, G/AB pulldowns due to weak driving buffers */
