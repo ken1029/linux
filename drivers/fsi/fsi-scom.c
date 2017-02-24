@@ -22,6 +22,7 @@
 #include <linux/slab.h>
 #include <linux/miscdevice.h>
 #include <linux/list.h>
+#include <linux/idr.h>
 
 #define FSI_ENGID_SCOM		0x5
 
@@ -41,12 +42,14 @@ struct scom_device {
 	struct fsi_device *fsi_dev;
 	struct miscdevice mdev;
 	char	name[32];
+	int idx;
 };
 
 #define to_scom_dev(x)		container_of((x), struct scom_device, mdev)
 
 static struct list_head scom_devices;
-static atomic_t scom_idx = ATOMIC_INIT(0);
+
+static DEFINE_IDA(scom_ida);
 
 static int put_scom(struct scom_device *scom_dev, uint64_t value,
 			uint32_t addr)
@@ -82,6 +85,7 @@ static int get_scom(struct scom_device *scom_dev, uint64_t *value,
 	uint32_t result, data;
 	int rc;
 
+	*value = 0ULL;
 	data = addr;
 	rc = fsi_device_write(scom_dev->fsi_dev, SCOM_CMD_REG, &data,
 				sizeof(uint32_t));
@@ -134,8 +138,7 @@ static ssize_t scom_write(struct file *filep, const char __user *buf,
 			size_t len, loff_t *offset)
 {
 	int rc;
-	struct miscdevice *mdev =
-				(struct miscdevice *)filep->private_data;
+	struct miscdevice *mdev = filep->private_data;
 	struct scom_device *scom = to_scom_dev(mdev);
 	struct device *dev = &scom->fsi_dev->dev;
 	uint64_t val;
@@ -150,10 +153,12 @@ static ssize_t scom_write(struct file *filep, const char __user *buf,
 	}
 
 	rc = put_scom(scom, val, *offset);
-	if (rc)
+	if (rc) {
 		dev_dbg(dev, "put_scom failed with:%d\n", rc);
+		return rc;
+	}
 
-	return rc;
+	return len;
 }
 
 static loff_t scom_llseek(struct file *file, loff_t offset, int whence)
@@ -187,8 +192,9 @@ static int scom_probe(struct device *dev)
 	if (!scom)
 		return -ENOMEM;
 
+	scom->idx = ida_simple_get(&scom_ida, 1, INT_MAX, GFP_KERNEL);
 	snprintf(scom->name, sizeof(scom->name),
-			"scom%d", atomic_inc_return(&scom_idx));
+			"scom%d", scom->idx);
 	scom->fsi_dev = fsi_dev;
 	scom->mdev.minor = MISC_DYNAMIC_MINOR;
 	scom->mdev.fops = &scom_fops;
@@ -207,6 +213,7 @@ static int scom_remove(struct device *dev)
 	list_for_each_entry_safe(scom, scom_tmp, &scom_devices, link) {
 		if (scom->fsi_dev == fsi_dev) {
 			list_del(&scom->link);
+			ida_simple_remove(&scom_ida, scom->idx);
 			misc_deregister(&scom->mdev);
 		}
 	}

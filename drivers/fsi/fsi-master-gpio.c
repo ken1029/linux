@@ -274,7 +274,7 @@ static int poll_for_response(struct fsi_master_gpio *master, uint8_t expected,
 			resp <<= bits_remaining;
 			resp |= response.msg;
 			bits_received += bits_remaining;
-			*((uint32_t *)data) = response.msg;
+			memcpy(data, &response.msg, size);
 		}
 
 		crc_in = fsi_crc4(0, resp | (0x1ULL << bits_received),
@@ -512,6 +512,7 @@ static int fsi_master_gpio_probe(struct platform_device *pdev)
 	else
 		master->gpio_mux = gpio;
 
+	master->master.idx = -1;
 	master->master.n_links = 1;
 	master->master.read = fsi_master_gpio_read;
 	master->master.write = fsi_master_gpio_write;
