@@ -1,195 +1,211 @@
 /dts-v1/;
 
-#include "ast2400.dtsi"
-#include <dt-bindings/gpio/gpio.h>
+#include "aspeed-g4.dtsi"
+#include <dt-bindings/gpio/aspeed-gpio.h>
 
 / {
 	model = "Sthelens BMC";
 	compatible = "ms,sthelens-bmc", "aspeed,ast2400";
+
+	aliases {
+		serial4 = &uart5;
+	};
+
+	chosen {
+		stdout-path = &uart5;
+		bootargs = "console=ttyS4,38400 earlyprintk";
+	};
+
+	memory {
+		reg = <0x40000000 0x20000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		vga_memory: framebuffer@5f000000 {
+			no-map;
+			reg = <0x5f000000 0x01000000>; /* 16MB */
+		};
+	};
+
 	ahb {
-		mac0: ethernet@1e660000 {
-		        compatible = "faraday,ftgmac100", "aspeed,ast2400-mac";
-		        reg = <0x1e660000 0x180>;
-		        interrupts = <2>;
-		        no-hw-checksum;
-		};
-
-		mac1: ethernet@1e680000 {
-		        compatible = "faraday,ftgmac100", "aspeed,ast2400-mac";
-		        reg = <0x1e680000 0x180>;
-		        no-hw-checksum;
-		        interrupts = <3>;
-		        status = "disabled";
-		};
-
-		fmc@1e620000 {
+		bmc_pnor: fmc@1e620000 {
 			reg = < 0x1e620000 0x94
 				0x20000000 0x02000000 >;
 			#address-cells = <1>;
 			#size-cells = <0>;
-			compatible = "aspeed,fmc";
+			compatible = "aspeed,ast2400-fmc";
 			flash@0 {
 				reg = < 0 >;
 				compatible = "jedec,spi-nor" ;
-				/*
-				 * Possibly required props:
-				 * spi-max-frequency = <>
-				 * spi-tx-bus-width = <>
-				 * spi-rx-bus-width  = <>
-				 * m25p,fast-read
-				 * spi-cpol if inverse clock polarity (CPOL)
-				 * spi-cpha if shifted clock phase (CPHA)
-				 */
 #include "aspeed-bmc-opp-flash-layout.dtsi"
 			};
 		};
-		spi@1e630000 {
+
+		host_pnor: spi@1e630000 {
 			reg = < 0x1e630000 0x18
 				0x30000000 0x02000000 >;
 			#address-cells = <1>;
 			#size-cells = <0>;
-			compatible = "aspeed,smc";
-			flash {
+			compatible = "aspeed,ast2400-smc";
+			flash@0 {
 				reg = < 0 >;
 				compatible = "jedec,spi-nor" ;
 				label = "pnor";
-				/* spi-max-frequency = <>; */
-				/* m25p,fast-read; */
 			};
 		};
-		apb {
-			i2c: i2c@1e78a040 {
-				i2c1: i2c-bus@80 {
-					GPIO-MUX5@70 {
-							compatible = "nxp,pca9548";
-							reg = <0x70>;
-					};
-				};
-				i2c2: i2c-bus@c0 {
-					i2c-switch@76 {
-							compatible = "nxp,pca9548";
-							reg = <0x76>;
-                			i2c@0 {
-                        			reg = <0x00>;
-                			};
-                			i2c@1 {
-                        			reg = <0x01>;
-                        	};
-                			i2c@2 {
-                        			reg = <0x02>;
-                			};
-                			i2c@3 {
-                        			reg = <0x03>;
-                        	};
-                			i2c@4 {
-                        			reg = <0x04>;
-                			};
-                			i2c@5 {
-                        			reg = <0x05>;
-                        			lm75@48 {
-                              		compatible = "national,lm75";
-                               		reg = <0x48>;
-                        			};
-                              lm75@49 {
-                                  compatible = "national,lm75";
-                                  reg = <0x49>;
-                              };
-                              lm75@4a {
-                                  compatible = "national,lm75";
-                                  reg = <0x4a>;
-                              };
-                              lm75@4b {
-                                  compatible = "national,lm75";
-                                  reg = <0x4b>;
-                              };
-                              lm75@4c {
-                                  compatible = "national,lm75";
-                                  reg = <0x4c>;
-                              };
-                              lm75@4d {
-                                  compatible = "national,lm75";
-                                  reg = <0x4d>;
-                              };
-                              lm75@4e {
-                                  compatible = "national,lm75";
-                                  reg = <0x4e>;
-                              };
-                              lm75@4f {
-                                  compatible = "national,lm75";
-                                  reg = <0x4f>;
-                              };
-                			};
-                			i2c@6 {
-                        			reg = <0x06>;
-                			};
-                			i2c@7 {
-                        			reg = <0x07>;
-                      };
-        			};
-          i2c-switch@77 {
-							compatible = "nxp,pca9548";
-							reg = <0x77>;
-                			i2c@1 {
-                        			#address-cells = <1>;
-                        			#size-cells = <0>;
-                        			reg = <0x01>;
-
-							/* PCAL9538 */
-                			};
-                			i2c@3 {
-                        			#address-cells = <1>;
-                        			#size-cells = <0>;
-                        			reg = <0x3>;
-
-							/* PCAL9538 x 3 */
-                			};
-        				};
-				};
-				i2c3: i2c-bus@100 {
-        				GPIO-MUX1@74 {
-                								compatible = "nxp,pca9539";
-                								reg = <0x74>;
-        				};
-                                        GPIO-MUX2@75 {
-                                                                                compatible = "nxp,pca9539";
-                                                                                reg = <0x75>;
-                                        };
-                                        GPIO-MUX3@76 {
-                                                                                compatible = "nxp,pca9539";
-                                                                                reg = <0x76>;
-                                        };
-                                        GPIO-MUX4@77 {
-                                                                                compatible = "nxp,pca9539";
-                                                                                reg = <0x77>;
-                                        };
-					};
-                    i2c4: i2c-bus@140 {
-                        eeprom@50 {
-                            compatible = "atmel,24c256";
-                            reg = <0x50>;
-                            pagesize = <64>;
-                        };
-			        };
-                     };
-		};
 	};
-
 
 	leds {
 		compatible = "gpio-leds";
 
 		heartbeat {
-			gpios = <&gpio 140 GPIO_ACTIVE_HIGH>;
-			default-state = "keep";
+			gpios = <&gpio ASPEED_GPIO(R, 4) GPIO_ACTIVE_HIGH>;
 		};
 		identify {
-			gpios = <&gpio 44 GPIO_ACTIVE_LOW>;
-			default-state = "keep";
+			gpios = <&gpio ASPEED_GPIO(F, 4) GPIO_ACTIVE_LOW>;
 		};
 		beep {
-			gpios = <&gpio 111 GPIO_ACTIVE_HIGH>;
-			default-state = "keep";
+			gpios = <&gpio ASPEED_GPIO(N, 7) GPIO_ACTIVE_HIGH>;
 		};
 	};
 };
 
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_flbusy_default &pinctrl_flwp_default
+			&pinctrl_vgahs_default &pinctrl_vgavs_default
+			&pinctrl_ddcclk_default &pinctrl_ddcdat_default
+			&pinctrl_bmcint_default &pinctrl_flack_default>;
+};
+
+&mac0 {
+	status = "okay";
+};
+
+&uart5 {
+	status = "okay";
+};
+
+&i2c1{
+	status = "okay";
+	GPIO-MUX5@70 {
+			compatible = "nxp,pca9548";
+			reg = <0x70>;
+	};
+
+};
+&i2c2{
+	status = "okay";
+	i2c-switch@76 {
+			compatible = "nxp,pca9548";
+			reg = <0x76>;
+			i2c@0 {
+        			reg = <0x00>;
+			};
+			i2c@1 {
+        			reg = <0x01>;
+        	};
+			i2c@2 {
+        			reg = <0x02>;
+			};
+			i2c@3 {
+        			reg = <0x03>;
+        	};
+			i2c@4 {
+        			reg = <0x04>;
+			};
+			i2c@5 {
+        			reg = <0x05>;
+        			lm75@48 {
+	              		compatible = "national,lm75";
+	               		reg = <0x48>;
+        			};
+					lm75@49 {
+						compatible = "national,lm75";
+						reg = <0x49>;
+					};
+					lm75@4a {
+						compatible = "national,lm75";
+						reg = <0x4a>;
+					};
+					lm75@4b {
+						compatible = "national,lm75";
+						reg = <0x4b>;
+					};
+					lm75@4c {
+						compatible = "national,lm75";
+						reg = <0x4c>;
+					};
+					lm75@4d {
+						compatible = "national,lm75";
+						reg = <0x4d>;
+					};
+					lm75@4e {
+						compatible = "national,lm75";
+						reg = <0x4e>;
+					};
+					lm75@4f {
+						compatible = "national,lm75";
+						reg = <0x4f>;
+					};
+			};
+			i2c@6 {
+        			reg = <0x06>;
+			};
+			i2c@7 {
+        			reg = <0x07>;
+			};
+	};
+	i2c-switch@77 {
+			compatible = "nxp,pca9548";
+			reg = <0x77>;
+			i2c@1 {
+        			#address-cells = <1>;
+        			#size-cells = <0>;
+        			reg = <0x01>;
+
+			/* PCAL9538 */
+			};
+			i2c@3 {
+        			#address-cells = <1>;
+        			#size-cells = <0>;
+        			reg = <0x3>;
+
+			/* PCAL9538 x 3 */
+			};
+	};	
+};
+&i2c3{
+	status = "okay";
+	GPIO-MUX1@74 {
+		compatible = "nxp,pca9539";
+		reg = <0x74>;
+	};
+	GPIO-MUX2@75 {
+		compatible = "nxp,pca9539";
+		reg = <0x75>;
+	};
+	GPIO-MUX3@76 {
+		compatible = "nxp,pca9539";
+		reg = <0x76>;
+	};
+	GPIO-MUX4@77 {
+		compatible = "nxp,pca9539";
+		reg = <0x77>;
+	};
+};
+&i2c4{
+	status = "okay";
+    eeprom@50 {
+        compatible = "atmel,24c256";
+        reg = <0x50>;
+        pagesize = <64>;
+    };
+};
+&vuart {
+	status = "okay";
+};
