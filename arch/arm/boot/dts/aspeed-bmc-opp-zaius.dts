@@ -31,25 +31,6 @@
 		};
 	};
 
-	onewire0 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 0) GPIO_ACTIVE_HIGH>;
-	};
-
-	onewire1 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 1) GPIO_ACTIVE_HIGH>;
-	};
-
-	onewire2 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 2) GPIO_ACTIVE_HIGH>;
-	};
-
-	onewire3 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 3) GPIO_ACTIVE_HIGH>;
-	};
 
 	leds {
 		compatible = "gpio-leds";
@@ -176,11 +157,6 @@
 		reg = <0x64>;
 	};
 
-	lm75@4a {
-		compatible = "national,lm75";
-		reg = <0x4a>;
-	};
-
 	/* Power sequencer UCD90160 PMBUS @64h
 	 * FRU AT24C64D @50h
 	 * RTC PCF8523 @68h
@@ -294,17 +270,9 @@
 
 
 &i2c9 {
-	status = "okay";
+	status = "disabled";
 
-	nct7904@2d {
-		compatible = "nuvoton,nct7904";
-		reg = <0x2d>;
-	};
-
-	nct7904@2e {
-		compatible = "nuvoton,nct7904";
-		reg = <0x2e>;
-	};
+	/* Fan board */
 };
 
 &i2c10 {
@@ -331,33 +299,31 @@
 };
 
 &gpio {
-    rmii_sw1_sel_n {
-        gpio-hog;
-        gpios = <ASPEED_GPIO(A, 0) GPIO_ACTIVE_HIGH>;
-        output-low;
-        line-name = "rmii_sw1_sel_n";
-    };
+	 rmii_sw1_sel_n {
+  		gpio-hog;
+  		gpios = <ASPEED_GPIO(A, 0) GPIO_ACTIVE_HIGH>;
+  		output-low;
+  		line-name = "rmii_sw1_sel_n";
+	};
 
-    rmii_sw2_sel_n {
-        gpio-hog;
-        gpios = <ASPEED_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
-        output-low;
-        line-name = "rmii_sw2_sel_n";
-    };
-
+ 	rmii_sw2_sel_n {
+  		gpio-hog;
+  		gpios = <ASPEED_GPIO(A, 2) GPIO_ACTIVE_HIGH>;
+  		output-low;
+  		line-name = "rmii_sw2_sel_n";
+ 	};
 	line_iso_u146_en {
 		gpio-hog;
 		gpios = <ASPEED_GPIO(O, 4) GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "iso_u164_en";
 	};
-
-    ncsi_mux_en_n {
-        gpio-hog;
-        gpios = <ASPEED_GPIO(P, 0) GPIO_ACTIVE_HIGH>;
-        output-low;
-        line-name = "ncsi_mux_en_n";
-    };
+	 ncsi_mux_en_n {
+  		gpio-hog;
+  		gpios = <ASPEED_GPIO(P, 0) GPIO_ACTIVE_HIGH>;
+  		output-low;
+  		line-name = "ncsi_mux_en_n";
+ 	};
 
 	line_bmc_i2c2_sw_rst_n {
 		gpio-hog;
@@ -376,12 +342,4 @@
 
 &vuart {
 	status = "okay";
-};
-
-&gfx {
-	status = "okay";
-};
-
-&pinctrl {
-	aspeed,external-nodes = <&gfx &lhc>;
 };
