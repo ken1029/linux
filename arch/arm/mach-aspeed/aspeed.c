@@ -282,6 +282,7 @@ static void __init aspeed_init_early(void)
 	/*
 	 * Temporary setup of AST registers until pinmux driver is complete
 	 */
+printk("aspeed_init_early start \n");
 	if (of_machine_is_compatible("rackspace,barreleye-bmc"))
 		do_barreleye_setup();
 	if (of_machine_is_compatible("tyan,palmetto-bmc"))
@@ -298,6 +299,11 @@ static void __init aspeed_init_early(void)
 		do_witherspoon_setup();
 	if (of_machine_is_compatible("ibm,romulus-bmc"))
 		do_romulus_setup();
+// test
+do_palmetto_setup();
+
+printk("aspeed_init_early end \n");
+
 }
 
 static void __init aspeed_map_io(void)
