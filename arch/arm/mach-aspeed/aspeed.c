@@ -170,7 +170,7 @@ static void __init do_sthelens_setup(void)
         reg = readl(AST_IO(AST_BASE_GPIO | 0x84));
         reg |= (1<<7);
         writel(reg, AST_IO(AST_BASE_GPIO | 0x84));
-
+	writel(0xFA1CA4D6, AST_IO(AST_BASE_SCU | 0x70));
         /* Config GPIOM3 as output, GPIOM4 as output high */
         reg = readl(AST_IO(AST_BASE_GPIO | 0x7C));
         reg |= (1<<3)| (1<<4);
