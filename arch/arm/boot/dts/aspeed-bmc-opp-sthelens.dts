@@ -70,6 +70,9 @@
 	status = "okay";
 };
 
+&i2c0{
+	status = "okay";
+};
 &i2c1{
 	status = "okay";
 	GPIO-MUX5@70 {
@@ -185,6 +188,15 @@
         reg = <0x50>;
         pagesize = <64>;
     };
+};
+&i2c5{
+	status = "okay";
+};
+&i2c6{
+	status = "okay";
+};
+&i2c7{
+	status = "okay";
 };
 &vuart {
 	status = "okay";
