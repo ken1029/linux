@@ -43,19 +43,7 @@
 				compatible = "jedec,spi-nor" ;
 #include "aspeed-bmc-opp-flash-layout.dtsi"
 			};
-		};
 
-		host_pnor: spi@1e630000 {
-			reg = < 0x1e630000 0x18
-				0x30000000 0x02000000 >;
-			#address-cells = <1>;
-			#size-cells = <0>;
-			compatible = "aspeed,ast2400-smc";
-			flash@0 {
-				reg = < 0 >;
-				compatible = "jedec,spi-nor" ;
-				label = "pnor";
-			};
 		};
 	};
 
@@ -72,14 +60,6 @@
 			gpios = <&gpio ASPEED_GPIO(N, 7) GPIO_ACTIVE_HIGH>;
 		};
 	};
-};
-
-&pinctrl {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_flbusy_default &pinctrl_flwp_default
-			&pinctrl_vgahs_default &pinctrl_vgavs_default
-			&pinctrl_ddcclk_default &pinctrl_ddcdat_default
-			&pinctrl_bmcint_default &pinctrl_flack_default>;
 };
 
 &mac0 {
