@@ -15,21 +15,19 @@
 #include <asm/mach-types.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
-//#include "ast2400.h"
+#include "ast2400.h"
 
 // XXX TEMP HACKERY
 //
 // To be replaced by proper clock, pinmux and syscon drivers operating
 // from DT parameters
 
-/*
+
 typedef void (init_fnc_t) (void);
 extern void __init ast_add_device_pwm_fan(void);
 
 init_fnc_t __initdata *init_all_device[] = {
-#ifdef CONFIG_PWM_AST_ASPEED
 	ast_add_device_pwm_fan,
-#endif
 	NULL,
 };
 
@@ -43,7 +41,14 @@ static void __init ast_add_all_devices(void)
 
 	return;
 }
-*/
+
+static void __init aspeed_dt_init(void)
+{
+	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+	ast_add_all_devices();
+}
+
+
 #define AST_IO_VA	0xf0000000
 #define AST_IO_PA	0x1e600000
 #define AST_IO_SZ	0x00200000
@@ -386,5 +391,6 @@ static const char *const aspeed_dt_match[] __initconst = {
 DT_MACHINE_START(aspeed_dt, "ASpeed SoC")
 	.init_early	= aspeed_init_early,
 	.dt_compat	= aspeed_dt_match,
+	.init_machine	= aspeed_dt_init,
 	.map_io		= aspeed_map_io,
 MACHINE_END
