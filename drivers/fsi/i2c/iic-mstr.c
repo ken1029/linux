@@ -2114,7 +2114,7 @@ void iic_ffdc_q_unlocked(int scope, void* data)
 #define IIC_BUS_MAX_FFDC 4
 iic_bus_t*  iic_create_bus(struct class* classp, iic_eng_t* eng,
 			   dev_t devnum, char* name, unsigned char port,
-			   unsigned long bus_id)
+			   int bus_id)
 {
 	int rc = 0;
 	iic_bus_t* bus = 0;
@@ -2133,6 +2133,7 @@ iic_bus_t*  iic_create_bus(struct class* classp, iic_eng_t* eng,
 	memset(bus, 0, sizeof(iic_bus_t));
 	bus->port = port;
 	bus->bus_id = bus_id;
+	bus->idx = bus_id;
 	bus->eng = eng;
 	bus->devnum = devnum;
 	bus->i2c_hz = 400000;
@@ -2156,7 +2157,7 @@ iic_bus_t*  iic_create_bus(struct class* classp, iic_eng_t* eng,
 		goto exit_class_add;
 	}
 
-	IFLDi(1, "bus[%08lx] created\n", bus->bus_id);
+	dev_dbg(bus->class_dev, "bus[%08lx] created\n", bus->bus_id);
 	goto exit;
 
 	device_destroy(classp, bus->devnum);
@@ -2179,7 +2180,7 @@ void iic_delete_bus(struct class* classp, iic_bus_t* bus)
 	{
 		goto exit;
 	}
-	IFLDi(1, "cleanup bus[%08lx]\n", bus->bus_id);
+	dev_dbg(bus->class_dev, "cleanup bus[%08lx]\n", bus->bus_id);
 	device_destroy(classp, bus->devnum);
 	cdev_del(&bus->cdev);
 	kfree(bus);
@@ -2194,7 +2195,6 @@ static int __init iic_init(void)
 	int rc = 0;
 
 	IENTER();
-	printk("IIC: base support loaded  ver. %s\n", iic_mstr_version);
 	IEXIT(rc);
 	return rc;
 }
@@ -2202,7 +2202,6 @@ static int __init iic_init(void)
 static void __exit iic_exit(void)
 {
 	IENTER();
-	printk("IIC: base support unloaded.\n");
 	IEXIT(0);
 }
 

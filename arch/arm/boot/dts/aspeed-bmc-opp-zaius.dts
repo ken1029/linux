@@ -25,9 +25,9 @@
 		#size-cells = <1>;
 		ranges;
 
-		flash_memory: region@94000000 {
+		flash_memory: region@98000000 {
 			no-map;
-			reg = <0x94000000 0x04000000>; /* 64M */
+			reg = <0x98000000 0x04000000>; /* 64M */
 		};
 	};
 
@@ -78,7 +78,7 @@
 	fsi-master {
 		compatible = "ibm,fsi-master", "ibm,fsi-master-gpio";
 
-		status = "disabled";
+		status = "okay";
 
 		clock-gpios = <&gpio ASPEED_GPIO(C, 3) GPIO_ACTIVE_HIGH>;
 		data-gpios = <&gpio ASPEED_GPIO(C, 2) GPIO_ACTIVE_HIGH>;
@@ -274,7 +274,13 @@
 	/* Master selector PCA9541A @70h (other master: CPU0)
 	 *   LM5066I PMBUS @10h
 	 */
-	/* 12V SMPS Q54SH12050NNDH @61h */
+
+	/* 12V Quarter Brick DC/DC Converter Q54SJ12050 @61h */
+	power-brick@61 {
+		compatible = "delta,dps800";
+		reg = <0x61>;
+	};
+
 	/* CPU0 VR ISL68137 0.7V, 0.96V PMBUS @64h */
 	/* CPU0 VR ISL68137 1.2V CH03 PMBUS @40h */
 	/* CPU0 VR ISL68137 0.8V PMBUS @60h */
@@ -352,12 +358,12 @@
 		line-name = "iso_u164_en";
 	};
 
-    ncsi_mux_en_n {
-        gpio-hog;
-        gpios = <ASPEED_GPIO(P, 0) GPIO_ACTIVE_HIGH>;
-        output-low;
-        line-name = "ncsi_mux_en_n";
-    };
+	ncsi_mux_en_n {
+		gpio-hog;
+		gpios = <ASPEED_GPIO(P, 0) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "ncsi_mux_en_n";
+	};
 
 	line_bmc_i2c2_sw_rst_n {
 		gpio-hog;
@@ -376,4 +382,12 @@
 
 &vuart {
 	status = "okay";
+};
+
+&gfx {
+	status = "okay";
+};
+
+&pinctrl {
+	aspeed,external-nodes = <&gfx &lhc>;
 };

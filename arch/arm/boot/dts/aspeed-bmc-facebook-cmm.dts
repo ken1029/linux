@@ -198,3 +198,11 @@
 	status = "okay";
 	/* CPLD at reg = <3E> */
 };
+
+&gfx {
+	status = "okay";
+};
+
+&pinctrl {
+	aspeed,external-nodes = <&gfx &lhc>;
+};
