@@ -166,7 +166,7 @@ static ssize_t show_fan(struct device *dev,
 	if (ret < 0)
 		return ret;
 	cnt = ((ret & 0xff00) >> 3) | (ret & 0x1f);
-	if (cnt == 0x1fff)
+	if (cnt == 0x1fff || cnt == 0)
 		rpm = 0;
 	else
 		rpm = 1350000 / cnt;
@@ -380,6 +380,8 @@ static const struct attribute_group nct7904_tcpu_group = {
 };
 
 /* PWM ATTR */
+static int  record_pwm[20];
+
 static ssize_t store_pwm(struct device *dev, struct device_attribute *devattr,
 			 const char *buf, size_t count)
 {
@@ -392,8 +394,11 @@ static ssize_t store_pwm(struct device *dev, struct device_attribute *devattr,
 		return -EINVAL;
 	if (val > 255)
 		return -EINVAL;
-
+    
 	ret = nct7904_write_reg(data, BANK_3, FANCTL1_OUT_REG + index, val);
+
+    if (ret == 0)
+        record_pwm[index] = (int) val;
 
 	return ret ? ret : count;
 }
@@ -406,8 +411,17 @@ static ssize_t show_pwm(struct device *dev,
 	int val;
 
 	val = nct7904_read_reg(data, BANK_3, FANCTL1_OUT_REG + index);
+    if ( val != record_pwm[index])
+    {
+        char st[10];
+        int count = 0;
+        val = record_pwm[index];
+	    count = sprintf(st, "%d\n", val);
+        store_pwm(dev, devattr, st, count);
+    }
+
 	if (val < 0)
-		return val;
+	    return val;
 
 	return sprintf(buf, "%d\n", val);
 }
