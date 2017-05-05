@@ -31,11 +31,6 @@
 #include <linux/err.h>
 #include <linux/clk.h>
 
-#include <linux/file.h>
-#include <linux/fcntl.h>
-#include <linux/fs.h>
-#include <asm/uaccess.h>
-
 #include <linux/dma-mapping.h>
 
 #include <asm/irq.h>
@@ -446,23 +441,8 @@ static u8 ast_i2c_bus_error_recover(struct ast_i2c_bus *bus)
 static int ast_i2c_wait_bus_not_busy(struct ast_i2c_bus *bus)
 {
 	int timeout = 2; //TODO number
-	u32 states = ast_i2c_read(bus, I2C_CMD_REG);
 
-	while (states & AST_I2CD_BUS_BUSY_STS) {
-		//Write bus_id and error_code to file for event logging
-		char writeBuff[100];
-		struct file *filp = NULL;
-		mm_segment_t old_fs;
-		sprintf(writeBuff, "%d\n0x%2X",bus->adap.nr,states);
-		filp = filp_open("/tmp/i2c_recovery", O_RDWR | O_CREAT, 0644);
-		if(filp) {
-			old_fs = get_fs();
-			set_fs(get_ds());
-			filp->f_op->write(filp, writeBuff, strlen(writeBuff), &filp->f_pos);
-			set_fs(old_fs);
-			filp_close(filp,NULL);
-		}
-
+	while (ast_i2c_read(bus, I2C_CMD_REG) & AST_I2CD_BUS_BUSY_STS) {
 		ast_i2c_bus_error_recover(bus);
 		if(timeout <= 0)
 			break;
