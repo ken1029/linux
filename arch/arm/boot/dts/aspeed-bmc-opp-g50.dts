@@ -47,6 +47,12 @@
 		};
 	};
 
+rtc: rtc@1e781000 {
+        compatible = "aspeed,rtc";
+        reg = <0x1e781000 0x18>;
+        status = "okay";
+};
+
 	leds {
 		compatible = "gpio-leds";
 
