@@ -31,46 +31,22 @@
 		};
 	};
 
-	onewire0 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 0) GPIO_ACTIVE_HIGH>;
-	};
-
-	onewire1 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 1) GPIO_ACTIVE_HIGH>;
-	};
-
-	onewire2 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 2) GPIO_ACTIVE_HIGH>;
-	};
-
-	onewire3 {
-		compatible = "w1-gpio";
-		gpios = <&gpio ASPEED_GPIO(H, 3) GPIO_ACTIVE_HIGH>;
-	};
-
 	leds {
 		compatible = "gpio-leds";
 
 		sys_boot_status {
-			label = "System boot status";
-			gpios = <&gpio ASPEED_GPIO(D, 5) GPIO_ACTIVE_LOW>;
+			gpios = <&gpio ASPEED_GPIO(D, 5) GPIO_ACTIVE_HIGH>;
 		};
 
 		attention {
-			label = "Attention";
 			gpios = <&gpio ASPEED_GPIO(D, 6) GPIO_ACTIVE_LOW>;
 		};
 
 		plt_fault {
-			label = "Platform fault";
 			gpios = <&gpio ASPEED_GPIO(D, 7) GPIO_ACTIVE_LOW>;
 		};
 
 		hdd_fault {
-			label = "Onboard drive fault";
 			gpios = <&gpio ASPEED_GPIO(AA, 2) GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -80,45 +56,15 @@
 
 		status = "okay";
 
-		clock-gpios = <&gpio ASPEED_GPIO(C, 3) GPIO_ACTIVE_HIGH>;
-		data-gpios = <&gpio ASPEED_GPIO(C, 2) GPIO_ACTIVE_HIGH>;
+		/*
+		 * These 2 GPIOs are set per board revision in aspeed.c.
+		 * These are the DVT and beyond values:
+		 * clock-gpios = <&gpio ASPEED_GPIO(G, 0) GPIO_ACTIVE_HIGH>;
+		 * data-gpios = <&gpio ASPEED_GPIO(G, 1) GPIO_ACTIVE_HIGH>;
+		 */
 		trans-gpios = <&gpio ASPEED_GPIO(O, 6) GPIO_ACTIVE_HIGH>;
 		enable-gpios = <&gpio ASPEED_GPIO(D, 0) GPIO_ACTIVE_HIGH>;
 		mux-gpios = <&gpio ASPEED_GPIO(P, 6) GPIO_ACTIVE_HIGH>;
-
-		sbefifo1: sbefifo@2400 {
-			compatible = "ibm,power9-sbefifo";
-
-			status = "okay";
-
-			reg = <0x2400>;
-
-			occ@1 {
-				compatible = "ibm,p9-occ";
-				reg = <1>;
-			};
-		};
-
-		sbefifo2: sbefifo@82400 {
-			compatible = "ibm,power9-sbefifo";
-
-			status = "okay";
-
-			reg = <0x2400>;
-
-			occ@2 {
-				compatible = "ibm,p9-occ";
-				reg = <2>;
-			};
-		};
-	};
-
-	iio-hwmon {
-		compatible = "iio-hwmon";
-		io-channels = <&adc 0>, <&adc 1>, <&adc 2>, <&adc 3>,
-			<&adc 4>, <&adc 5>, <&adc 6>, <&adc 7>,
-			<&adc 8>, <&adc 9>, <&adc 10>, <&adc 11>,
-			<&adc 12>, <&adc 13>, <&adc 14>, <&adc 15>;
 	};
 };
 
@@ -206,14 +152,22 @@
 	};
 
 	ucd90160@64 {
+		/* https://github.com/openbmc/openbmc/issues/832 */
+		status = "disabled";
 		compatible = "ti,ucd90160";
 		reg = <0x64>;
+	};
+
+	lm75@4a {
+		compatible = "national,lm75";
+		reg = <0x4a>;
 	};
 
 	/* Power sequencer UCD90160 PMBUS @64h
 	 * FRU AT24C64D @50h
 	 * RTC PCF8523 @68h
 	 * Clock buffer 9DBL04 @6dh
+	 * LM75 @4ah
 	 */
 };
 
@@ -329,9 +283,28 @@
 
 
 &i2c9 {
-	status = "disabled";
+	status = "okay";
+
+	nct7904@2d {
+		compatible = "nuvoton,nct7904";
+		reg = <0x2d>;
+	};
+
+	nct7904@2e {
+		compatible = "nuvoton,nct7904";
+		reg = <0x2e>;
+	};
 
 	/* Fan board */
+	lm75@4a {
+		compatible = "national,lm75";
+		reg = <0x4a>;
+	};
+
+	lm75@4f {
+		compatible = "national,lm75";
+		reg = <0x4f>;
+	};
 };
 
 &i2c10 {
@@ -384,6 +357,13 @@
 		gpios = <ASPEED_GPIO(P, 3) GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "bmc_i2c5_sw_rst_n";
+	};
+
+	bmc_ready_n {
+		gpio-hog;
+		gpios = <ASPEED_GPIO(L, 5) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "bmc_ready_n";
 	};
 };
 
